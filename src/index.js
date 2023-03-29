@@ -1,20 +1,34 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
+import i18n from 'i18next';
 import * as yup from 'yup';
 import watchedState from './watcher.js';
+import ru from './locales/ru.js';
 
-const validateUrl = (text, model) => {
+const validateUrl = (text, model, textLibrary) => {
+  yup.setLocale({
+    string: {
+      url: textLibrary.t('urlError'),
+      required: textLibrary.t('requiredError'),
+    },
+  });
+  
   const schema = yup.string()
-    .url('Please enter a valid URL')
-    .required('URL is required')
-    .notOneOf(model.links, 'This URL is already in the base');
+    .url()
+    .required()
+    .notOneOf(model.links, textLibrary.t('notOneOfError'));
   return schema
     .validate(text)
     .then(() => null)
     .catch((e) => e.message);
 };
 
-const app = () => {
+const app = (textLib) => {
   const form = document.querySelector('form');
+  const label = document.querySelector('label');
+  label.innerHTML = textLib.t('label');
+  const button = document.querySelector('button');
+  button.innerHTML = textLib.t('button');
+
   const state = {
     form: {
       error: '',
@@ -30,7 +44,7 @@ const app = () => {
     e.preventDefault();
     const inputField = document.querySelector('#url-input');
     const url = inputField.value;
-    validateUrl(url, watcher).then((err) => {
+    validateUrl(url, watcher, textLib).then((err) => {
       if (err) {
         watcher.form = {
           error: err,
@@ -48,4 +62,18 @@ const app = () => {
   });
 };
 
-app();
+const outerApp = () => {
+  const i18nextInstance = i18n.createInstance();
+  
+  return i18nextInstance
+    .init({
+      lng: 'ru',
+      debug: true,
+      resources: {
+        ru,
+      },
+    })
+    .then(() => app(i18nextInstance));
+};
+
+outerApp();
