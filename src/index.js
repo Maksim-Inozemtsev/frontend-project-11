@@ -11,7 +11,7 @@ const validateUrl = (text, model, textLibrary) => {
       required: textLibrary.t('requiredError'),
     },
   });
-  
+
   const schema = yup.string()
     .url()
     .required()
@@ -25,7 +25,7 @@ const validateUrl = (text, model, textLibrary) => {
 const app = (textLib) => {
   const form = document.querySelector('form');
   const label = document.querySelector('label');
-  label.innerHTML = textLib.t('Ссылка RSS');
+  label.innerHTML = textLib.t('label');
   const button = document.querySelector('button');
   button.innerHTML = textLib.t('button');
 
@@ -64,7 +64,7 @@ const app = (textLib) => {
 
 const outerApp = () => {
   const i18nextInstance = i18n.createInstance();
-  
+
   return i18nextInstance
     .init({
       lng: 'ru',
