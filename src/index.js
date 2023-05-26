@@ -25,7 +25,7 @@ const validateUrl = (text, model, textLibrary) => {
 const app = (textLib) => {
   const form = document.querySelector('form');
   const label = document.querySelector('label');
-  label.innerHTML = textLib.t('label');
+  label.innerHTML = textLib.t('Ссылка RSS');
   const button = document.querySelector('button');
   button.innerHTML = textLib.t('button');
 
