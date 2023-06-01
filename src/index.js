@@ -1,8 +1,11 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
 import i18n from 'i18next';
 import * as yup from 'yup';
+import axios from 'axios';
+import { v4 } from 'uuid';
 import watchedState from './watcher.js';
 import ru from './locales/ru.js';
+import parse from './parser.js';
 
 const validateUrl = (text, model, textLibrary) => {
   yup.setLocale({
@@ -15,7 +18,7 @@ const validateUrl = (text, model, textLibrary) => {
   const schema = yup.string()
     .url()
     .required()
-    .notOneOf(model.links, textLibrary.t('notOneOfError'));
+    .notOneOf(model.flows, textLibrary.t('notOneOfError'));
   return schema
     .validate(text)
     .then(() => null)
@@ -31,11 +34,12 @@ const app = (textLib) => {
 
   const state = {
     form: {
-      error: '',
+      error: null,
       valid: true,
     },
-    links: [],
-    linksCount: 0,
+    flows: [],
+    feeds: [],
+    posts: [],
   };
 
   const watcher = watchedState(state, form);
@@ -52,11 +56,24 @@ const app = (textLib) => {
         };
       } else {
         watcher.form = {
-          error: '',
+          error: null,
           valid: true,
         };
-        watcher.links.push(url);
-        watcher.linksCount += 1;
+        watcher.flows.push(url);
+        axios.get(`https://allorigins.hexlet.app/get?disableCache=true&url=${url}`)
+          .then((response) => {
+            const data = parse(response.data.contents);
+            const newFeed = { id: v4(), title: data.title, description: data.description };
+            watcher.feeds.push(newFeed);
+            data.items.forEach((item) => {
+              let newPost = { feedID: newFeed.id, id: v4() };
+              newPost = Object.assign(item, newPost);
+              watcher.posts.push(newPost);
+            });
+          })
+          .catch((error) => {
+            alert(error);
+          });
       }
     });
   });
