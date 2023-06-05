@@ -29,8 +29,16 @@ const app = (textLib) => {
   const form = document.querySelector('form');
   const label = document.querySelector('label');
   label.innerHTML = textLib.t('label');
-  const button = document.querySelector('button');
+  const button = document.querySelector('.btn-lg');
   button.innerHTML = textLib.t('button');
+  const btnSecondary = document.querySelector('.btn-secondary');
+  btnSecondary.innerHTML = textLib.t('btnSecondary');
+  const fullArticle = document.querySelector('.full-article');
+  fullArticle.innerHTML = textLib.t('fullArticle');
+  const display3 = document.querySelector('.display-3');
+  display3.innerHTML = textLib.t('display3');
+  const lead = document.querySelector('.lead');
+  lead.innerHTML = textLib.t('lead');
 
   const state = {
     form: {
@@ -42,7 +50,7 @@ const app = (textLib) => {
     posts: [],
   };
 
-  const watcher = watchedState(state, form);
+  const watcher = watchedState(state, form, textLib);
 
   form.addEventListener('submit', (e) => {
     e.preventDefault();
