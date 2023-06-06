@@ -29,7 +29,7 @@ const watchedState = (state, form, textLib) => onChange(state, (path, value, pre
       div11.appendChild(ul1);
       feedsContainer.appendChild(div11);
     }
-    
+
     const feedEl = document.createElement('li');
     const lastFeed = value[value.length - 1];
     feedEl.id = lastFeed.id;
@@ -65,7 +65,7 @@ const watchedState = (state, form, textLib) => onChange(state, (path, value, pre
       div22.appendChild(ul2);
       postsContainer.appendChild(div21);
     }
-    
+
     const postEl = document.createElement('li');
     const lastPost = value[value.length - 1];
     postEl.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start', 'border-0', 'border-end-0');
