@@ -1,6 +1,6 @@
 import onChange from 'on-change';
 
-const watchedState = (state, form, textLib) => onChange(state, (path, value, previousValue) => {
+const watchedState = (initialState, form, textLib) => onChange(initialState, (path, value) => {
   const inputField = document.querySelector('#url-input');
   if (path === 'error') {
     inputField.classList.add('is-invalid');
@@ -72,14 +72,14 @@ const watchedState = (state, form, textLib) => onChange(state, (path, value, pre
     const link = document.createElement('a');
     link.href = lastPost.link;
     link.setAttribute('class', 'fw-bold');
-    link.setAttribute('data-id', `${lastPost.id}`);
+    link.setAttribute('data-id', lastPost.id);
     link.setAttribute('target', '_blank');
     link.setAttribute('rel', 'noopener noreferrer');
     link.textContent = lastPost.title;
     const button = document.createElement('button');
     button.classList.add('btn', 'btn-outline-primary', 'btn-sm');
     button.setAttribute('type', 'button');
-    button.setAttribute('data-id', `${lastPost.id}`);
+    button.setAttribute('data-id', lastPost.id);
     button.setAttribute('data-bs-toggle', 'modal');
     button.setAttribute('data-bs-target', '#modal');
     button.innerHTML = textLib.t('btnSm');
@@ -87,6 +87,20 @@ const watchedState = (state, form, textLib) => onChange(state, (path, value, pre
     postEl.appendChild(button);
     const postUl = postsContainer.querySelector('ul');
     postUl.appendChild(postEl);
+  }
+
+  if (path === 'activePost') {
+    const activePost = initialState.posts.find((p) => p.id === value);
+    const modalTitle = document.querySelector('.modal-title');
+    modalTitle.innerHTML = activePost.title;
+    const modalBody = document.querySelector('.modal-body');
+    modalBody.innerHTML = activePost.description;
+  }
+
+  if (path === 'seenPosts') {
+    const newSeenPostId = value[value.length - 1];
+    const newSeenPost = document.querySelector(`#${newSeenPostId}`);
+    newSeenPost.classList.replace('fw-bold', 'fw-normal');
   }
 });
 

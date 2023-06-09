@@ -1,4 +1,5 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap';
 import i18n from 'i18next';
 import * as yup from 'yup';
 import axios from 'axios';
@@ -48,6 +49,8 @@ const app = (textLib) => {
     flows: [],
     feeds: [],
     posts: [],
+    activePost: null,
+    seenPosts: [],
   };
 
   const watcher = watchedState(state, form, textLib);
@@ -82,12 +85,24 @@ const app = (textLib) => {
             });
           })
           .catch((error) => {
-            alert(error);
+            console.log(error);
           });
       }
     });
   });
-  
+
+  const modal = document.querySelector('#modal');
+  modal.addEventListener('click', (e) => {
+    if (!e.target.dataset.id) {
+      return;
+    }
+
+    watcher.activePost = e.target.dataset.id;
+    if (!watcher.seenPosts.includes(e.target.dataset.id)) {
+      watcher.seenPosts.push(e.target.dataset.id);
+    }
+  });
+
   const checkNewPosts = () => {
     state.feeds.forEach((feed) => {
       const oldPostsLinks = state.posts
@@ -97,8 +112,7 @@ const app = (textLib) => {
         .then((response) => {
           const data = parse(response.data.contents);
           data.items.forEach((item) => {
-            const itemLink = item.link;
-            if (!oldPostsLinks.includes(itemLink)) {
+            if (!oldPostsLinks.includes(item.link)) {
               let newPost = { feedID: feed.id, id: v4() };
               newPost = Object.assign(item, newPost);
               watcher.posts.push(newPost);
@@ -106,7 +120,7 @@ const app = (textLib) => {
           });
         })
         .catch((error) => {
-          alert(error);
+          console.log(error);
         });
     });
     setTimeout(checkNewPosts, 5000);
