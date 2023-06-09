@@ -99,7 +99,7 @@ const watchedState = (initialState, form, textLib) => onChange(initialState, (pa
 
   if (path === 'seenPosts') {
     const newSeenPostId = value[value.length - 1];
-    const newSeenPost = document.querySelector(`#${newSeenPostId}`);
+    const newSeenPost = document.querySelector(`[data-id="${newSeenPostId}"]`);
     newSeenPost.classList.replace('fw-bold', 'fw-normal');
   }
 });

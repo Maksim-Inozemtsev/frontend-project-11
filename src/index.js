@@ -91,8 +91,8 @@ const app = (textLib) => {
     });
   });
 
-  const modal = document.querySelector('#modal');
-  modal.addEventListener('click', (e) => {
+  const postsContainer = document.querySelector('.posts');
+  postsContainer.addEventListener('click', (e) => {
     if (!e.target.dataset.id) {
       return;
     }
