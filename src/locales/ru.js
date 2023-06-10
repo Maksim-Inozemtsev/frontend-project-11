@@ -9,8 +9,13 @@ export default {
     feedsTitle: 'Фиды',
     postsTitle: 'Посты',
     btnSm: 'Просмотр',
-    urlError: 'Ссылка должна быть валидным URL',
-    requiredError: 'Необходимо ввести URL',
-    notOneOfError: 'Этот URL уже есть в базе данных',
+    successLoad: 'RSS успешно загружен',
+    errors: {
+      urlError: 'Ссылка должна быть валидным URL',
+      rssError: 'Ресурс не содержит валидный RSS',
+      requiredError: 'Не должно быть пустым',
+      notOneOfError: 'RSS уже существует',
+      connectionError: 'Ошибка сети',
+    },
   },
 };

@@ -11,15 +11,15 @@ import parse from './parser.js';
 const validateUrl = (text, model, textLibrary) => {
   yup.setLocale({
     string: {
-      url: textLibrary.t('urlError'),
-      required: textLibrary.t('requiredError'),
+      url: textLibrary.t('errors.urlError'),
+      required: textLibrary.t('errors.requiredError'),
     },
   });
 
   const schema = yup.string()
     .url()
     .required()
-    .notOneOf(model.flows, textLibrary.t('notOneOfError'));
+    .notOneOf(model.flows, textLibrary.t('errors.notOneOfError'));
   return schema
     .validate(text)
     .then(() => null)
@@ -44,7 +44,6 @@ const app = (textLib) => {
   const state = {
     form: {
       error: null,
-      valid: true,
     },
     flows: [],
     feeds: [],
@@ -61,19 +60,13 @@ const app = (textLib) => {
     const url = inputField.value;
     validateUrl(url, watcher, textLib).then((err) => {
       if (err) {
-        watcher.form = {
-          error: err,
-          valid: false,
-        };
+        watcher.form.error = err;
       } else {
-        watcher.form = {
-          error: null,
-          valid: true,
-        };
-        watcher.flows.push(url);
         axios.get(`https://allorigins.hexlet.app/get?disableCache=true&url=${url}`)
           .then((response) => {
             const data = parse(response.data.contents);
+            watcher.form.error = null;
+            watcher.flows.push(url);
             const newFeed = {
               id: v4(), link: url, title: data.title, description: data.description,
             };
@@ -85,7 +78,13 @@ const app = (textLib) => {
             });
           })
           .catch((error) => {
-            console.log(error);
+            if (error.message === 'Network Error') {
+              watcher.form.error = textLib.t('errors.connectionError');
+            } else if (error.message === 'rssError') {
+              watcher.form.error = textLib.t('errors.rssError');
+            } else {
+              console.log(error.message);
+            }
           });
       }
     });
@@ -120,7 +119,11 @@ const app = (textLib) => {
           });
         })
         .catch((error) => {
-          console.log(error);
+          if (error.message === 'Network Error') {
+            watcher.form.error = textLib.t('errors.connectionError');
+          } else {
+            console.log(error.message);
+          }
         });
     });
     setTimeout(checkNewPosts, 5000);

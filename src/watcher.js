@@ -1,18 +1,34 @@
 import onChange from 'on-change';
 
 const watchedState = (initialState, form, textLib) => onChange(initialState, (path, value) => {
-  const inputField = document.querySelector('#url-input');
-  if (path === 'error') {
-    inputField.classList.add('is-invalid');
+  const feedback = document.querySelector('.feedback');
+
+  if (path === 'form.error') {
+    const inputField = document.getElementById('url-input');
+    if (value !== null) {
+      if (feedback.classList.contains('text-success')) {
+        feedback.classList.replace('text-success', 'text-danger');
+      }
+      inputField.classList.add('is-invalid');
+    } else {
+      if (feedback.classList.contains('text-danger')) {
+        feedback.classList.replace('text-danger', 'text-success');
+      }
+      inputField.classList.remove('is-invalid');
+    }
+    feedback.innerHTML = value;
   }
+
   if (path === 'flows') {
     form.reset();
     form.querySelector('input').focus();
-    if (inputField.classList.contains('is-invalid')) {
-      inputField.classList.remove('is-invalid');
+    if (feedback.classList.contains('text-danger')) {
+      feedback.classList.replace('text-danger', 'text-success');
     }
   }
+
   if (path === 'feeds') {
+    feedback.innerHTML = textLib.t('successLoad');
     const feedsContainer = document.querySelector('.feeds');
     if (feedsContainer.childNodes.length === 0) {
       const div11 = document.createElement('div');
@@ -29,7 +45,6 @@ const watchedState = (initialState, form, textLib) => onChange(initialState, (pa
       div11.appendChild(ul1);
       feedsContainer.appendChild(div11);
     }
-
     const feedEl = document.createElement('li');
     const lastFeed = value[value.length - 1];
     feedEl.id = lastFeed.id;
@@ -45,27 +60,24 @@ const watchedState = (initialState, form, textLib) => onChange(initialState, (pa
     const feedUl = feedsContainer.querySelector('ul');
     feedUl.appendChild(feedEl);
   }
+
   if (path === 'posts') {
     const postsContainer = document.querySelector('.posts');
     if (postsContainer.childNodes.length === 0) {
       const div21 = document.createElement('div');
-      div21.classList.add('col-md-10', 'col-lg-8', 'order-1', 'mx-auto', 'posts');
-      const div22 = document.createElement('div');
-      div22.classList.add('card', 'border-0');
+      div21.classList.add('card', 'border-0');
       const div3 = document.createElement('div');
       div3.classList.add('card-body');
       const postsTitle = document.createElement('h2');
       postsTitle.classList.add('card-title', 'h4');
       postsTitle.innerHTML = textLib.t('postsTitle');
       div3.appendChild(postsTitle);
-      div22.appendChild(div3);
-      div21.appendChild(div22);
+      div21.appendChild(div3);
       const ul2 = document.createElement('ul');
       ul2.classList.add('list-group', 'border-0', 'rounded-0');
-      div22.appendChild(ul2);
+      div21.appendChild(ul2);
       postsContainer.appendChild(div21);
     }
-
     const postEl = document.createElement('li');
     const lastPost = value[value.length - 1];
     postEl.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start', 'border-0', 'border-end-0');
@@ -95,12 +107,15 @@ const watchedState = (initialState, form, textLib) => onChange(initialState, (pa
     modalTitle.innerHTML = activePost.title;
     const modalBody = document.querySelector('.modal-body');
     modalBody.innerHTML = activePost.description;
+    const openFull = document.querySelector('.full-article');
+    openFull.href = activePost.link;
   }
 
   if (path === 'seenPosts') {
     const newSeenPostId = value[value.length - 1];
     const newSeenPost = document.querySelector(`[data-id="${newSeenPostId}"]`);
     newSeenPost.classList.replace('fw-bold', 'fw-normal');
+    newSeenPost.classList.add('link-secondary');
   }
 });
 
