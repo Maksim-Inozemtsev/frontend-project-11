@@ -24,7 +24,7 @@ const app = (textLib) => {
       .then(() => null)
       .catch((e) => e.message);
   };
-  
+
   const elements = {
     form: document.querySelector('form'),
     feedback: document.querySelector('.feedback'),
@@ -34,7 +34,7 @@ const app = (textLib) => {
     modalTitle: document.querySelector('.modal-title'),
     modalBody: document.querySelector('.modal-body'),
     openFull: document.querySelector('.full-article'),
-  }
+  };
 
   const state = {
     form: {
@@ -106,31 +106,29 @@ const app = (textLib) => {
   });
 
   const checkNewPosts = () => {
-    const feedsPromises = state.feeds.map((feed) => {
-      axios.get(makePath(feed.link))
-        .then((response) => {
-          const oldPostsLinks = state.posts
-            .filter((oldPost) => oldPost.feedID === feed.id)
-            .map((el) => el.link);
-          const data = parse(response.data.contents);
-          data.items.forEach((item) => {
-            if (!oldPostsLinks.includes(item.link)) {
-              let newPost = { feedID: feed.id, id: v4() };
-              newPost = Object.assign(item, newPost);
-              watcher.posts.push(newPost);
-            }
-          });
-        })
-        .catch((error) => {
-          if (error.message === 'Network Error') {
-            watcher.form.error = textLib.t('errors.connectionError');
-          } else {
-            console.log(error.message);
+    const feedsPromises = state.feeds.map((feed) => axios.get(makePath(feed.link))
+      .then((response) => {
+        const oldPostsLinks = state.posts
+          .filter((oldPost) => oldPost.feedID === feed.id)
+          .map((el) => el.link);
+        const data = parse(response.data.contents);
+        data.items.forEach((item) => {
+          if (!oldPostsLinks.includes(item.link)) {
+            let newPost = { feedID: feed.id, id: v4() };
+            newPost = Object.assign(item, newPost);
+            watcher.posts.push(newPost);
           }
         });
-    });
+      })
+      .catch((error) => {
+        if (error.message === 'Network Error') {
+          watcher.form.error = textLib.t('errors.connectionError');
+        } else {
+          console.log(error.message);
+        }
+      }));
     Promise.all([...feedsPromises])
-    .then(setTimeout(checkNewPosts, 5000));
+      .then(setTimeout(checkNewPosts, 5000));
   };
 
   setTimeout(checkNewPosts, 5000);

@@ -1,6 +1,6 @@
 import onChange from 'on-change';
 
-const watchedState = (initialState, domElements, textLib) => onChange(initialState, (path, value) => {
+const watchedState = (initialState, elements, textLib) => onChange(initialState, (path, value) => {
   const {
     form,
     feedback,
@@ -10,7 +10,7 @@ const watchedState = (initialState, domElements, textLib) => onChange(initialSta
     modalTitle,
     modalBody,
     openFull,
-  } = domElements;
+  } = elements;
 
   const watchError = () => {
     if (value !== null) {
@@ -25,7 +25,7 @@ const watchedState = (initialState, domElements, textLib) => onChange(initialSta
       inputField.classList.remove('is-invalid');
     }
     feedback.innerHTML = value;
-  }
+  };
 
   const watchFlows = () => {
     form.reset();
@@ -33,7 +33,7 @@ const watchedState = (initialState, domElements, textLib) => onChange(initialSta
     if (feedback.classList.contains('text-danger')) {
       feedback.classList.replace('text-danger', 'text-success');
     }
-  }
+  };
 
   const watchFeeds = () => {
     feedback.innerHTML = textLib.t('successLoad');
@@ -66,7 +66,7 @@ const watchedState = (initialState, domElements, textLib) => onChange(initialSta
     feedEl.appendChild(feedDescr);
     const feedUl = feedsContainer.querySelector('ul');
     feedUl.appendChild(feedEl);
-  }
+  };
 
   const watchPosts = () => {
     if (postsContainer.childNodes.length === 0) {
@@ -105,21 +105,21 @@ const watchedState = (initialState, domElements, textLib) => onChange(initialSta
     postEl.appendChild(button);
     const postUl = postsContainer.querySelector('ul');
     postUl.appendChild(postEl);
-  }
+  };
 
   const watchActivePost = () => {
     const activePost = initialState.posts.find((p) => p.id === value);
     modalTitle.innerHTML = activePost.title;
     modalBody.innerHTML = activePost.description;
     openFull.href = activePost.link;
-  }
+  };
 
   const watchSeenPosts = () => {
     const newSeenPostId = value[value.length - 1];
     const newSeenPost = document.querySelector(`[data-id="${newSeenPostId}"]`);
     newSeenPost.classList.replace('fw-bold', 'fw-normal');
     newSeenPost.classList.add('link-secondary');
-  }
+  };
 
   switch (path) {
     case 'form.error':
