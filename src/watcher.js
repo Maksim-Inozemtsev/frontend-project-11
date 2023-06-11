@@ -1,10 +1,18 @@
 import onChange from 'on-change';
 
-const watchedState = (initialState, form, textLib) => onChange(initialState, (path, value) => {
-  const feedback = document.querySelector('.feedback');
+const watchedState = (initialState, domElements, textLib) => onChange(initialState, (path, value) => {
+  const {
+    form,
+    feedback,
+    inputField,
+    feedsContainer,
+    postsContainer,
+    modalTitle,
+    modalBody,
+    openFull,
+  } = domElements;
 
-  if (path === 'form.error') {
-    const inputField = document.getElementById('url-input');
+  const watchError = () => {
     if (value !== null) {
       if (feedback.classList.contains('text-success')) {
         feedback.classList.replace('text-success', 'text-danger');
@@ -19,7 +27,7 @@ const watchedState = (initialState, form, textLib) => onChange(initialState, (pa
     feedback.innerHTML = value;
   }
 
-  if (path === 'flows') {
+  const watchFlows = () => {
     form.reset();
     form.querySelector('input').focus();
     if (feedback.classList.contains('text-danger')) {
@@ -27,9 +35,8 @@ const watchedState = (initialState, form, textLib) => onChange(initialState, (pa
     }
   }
 
-  if (path === 'feeds') {
+  const watchFeeds = () => {
     feedback.innerHTML = textLib.t('successLoad');
-    const feedsContainer = document.querySelector('.feeds');
     if (feedsContainer.childNodes.length === 0) {
       const div11 = document.createElement('div');
       div11.classList.add('card', 'border-0');
@@ -61,8 +68,7 @@ const watchedState = (initialState, form, textLib) => onChange(initialState, (pa
     feedUl.appendChild(feedEl);
   }
 
-  if (path === 'posts') {
-    const postsContainer = document.querySelector('.posts');
+  const watchPosts = () => {
     if (postsContainer.childNodes.length === 0) {
       const div21 = document.createElement('div');
       div21.classList.add('card', 'border-0');
@@ -101,21 +107,41 @@ const watchedState = (initialState, form, textLib) => onChange(initialState, (pa
     postUl.appendChild(postEl);
   }
 
-  if (path === 'activePost') {
+  const watchActivePost = () => {
     const activePost = initialState.posts.find((p) => p.id === value);
-    const modalTitle = document.querySelector('.modal-title');
     modalTitle.innerHTML = activePost.title;
-    const modalBody = document.querySelector('.modal-body');
     modalBody.innerHTML = activePost.description;
-    const openFull = document.querySelector('.full-article');
     openFull.href = activePost.link;
   }
 
-  if (path === 'seenPosts') {
+  const watchSeenPosts = () => {
     const newSeenPostId = value[value.length - 1];
     const newSeenPost = document.querySelector(`[data-id="${newSeenPostId}"]`);
     newSeenPost.classList.replace('fw-bold', 'fw-normal');
     newSeenPost.classList.add('link-secondary');
+  }
+
+  switch (path) {
+    case 'form.error':
+      watchError();
+      break;
+    case 'flows':
+      watchFlows();
+      break;
+    case 'feeds':
+      watchFeeds();
+      break;
+    case 'posts':
+      watchPosts();
+      break;
+    case 'activePost':
+      watchActivePost();
+      break;
+    case 'seenPosts':
+      watchSeenPosts();
+      break;
+    default:
+      break;
   }
 });
 
