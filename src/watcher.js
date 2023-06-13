@@ -3,6 +3,7 @@ import onChange from 'on-change';
 const watchedState = (initialState, elements, textLib) => onChange(initialState, (path, value) => {
   const {
     form,
+    submit,
     feedback,
     inputField,
     feedsContainer,
@@ -27,15 +28,33 @@ const watchedState = (initialState, elements, textLib) => onChange(initialState,
     feedback.innerHTML = value;
   };
 
-  const watchFlows = () => {
-    form.reset();
-    form.querySelector('input').focus();
-    if (feedback.classList.contains('text-danger')) {
-      feedback.classList.replace('text-danger', 'text-success');
+  const watchLoading = () => {
+    switch (value) {
+      case 'ok':
+        submit.disabled = false;
+        inputField.removeAttribute('readonly');
+        inputField.value = '';
+        inputField.focus();
+        break;
+      case 'processing':
+        submit.disabled = true;
+        inputField.setAttribute('readonly', true);
+        break;
+      case 'failure':
+        submit.disabled = false;
+        inputField.removeAttribute('readonly');
+        break;
+      default:
+        break;
     }
   };
 
   const watchFeeds = () => {
+    form.reset();
+    inputField.focus();
+    if (feedback.classList.contains('text-danger')) {
+      feedback.classList.replace('text-danger', 'text-success');
+    }
     feedback.innerHTML = textLib.t('successLoad');
     if (feedsContainer.childNodes.length === 0) {
       const div11 = document.createElement('div');
@@ -125,9 +144,6 @@ const watchedState = (initialState, elements, textLib) => onChange(initialState,
     case 'form.error':
       watchError();
       break;
-    case 'flows':
-      watchFlows();
-      break;
     case 'feeds':
       watchFeeds();
       break;
@@ -139,6 +155,9 @@ const watchedState = (initialState, elements, textLib) => onChange(initialState,
       break;
     case 'seenPosts':
       watchSeenPosts();
+      break;
+    case 'loading':
+      watchLoading();
       break;
     default:
       break;

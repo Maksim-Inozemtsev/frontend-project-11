@@ -18,7 +18,7 @@ const app = (textLib) => {
     const schema = yup.string()
       .url()
       .required()
-      .notOneOf(model.flows, textLib.t('errors.notOneOfError'));
+      .notOneOf(model.feeds.map((f) => f.link), textLib.t('errors.notOneOfError'));
     return schema
       .validate(text)
       .then(() => null)
@@ -27,6 +27,7 @@ const app = (textLib) => {
 
   const elements = {
     form: document.querySelector('form'),
+    submit: document.querySelector('button[type="submit"]'),
     feedback: document.querySelector('.feedback'),
     inputField: document.getElementById('url-input'),
     feedsContainer: document.querySelector('.feeds'),
@@ -40,11 +41,11 @@ const app = (textLib) => {
     form: {
       error: null,
     },
-    flows: [],
     feeds: [],
     posts: [],
     activePost: null,
     seenPosts: [],
+    loading: 'ok',
   };
 
   const watcher = watchedState(state, elements, textLib);
@@ -55,13 +56,15 @@ const app = (textLib) => {
     } else if (e.isParseError) {
       watcher.form.error = textLib.t('errors.rssError');
     } else {
-      console.log(textLib.t('errors.unknownError'));
+      watcher.form.error = textLib.t('errors.unknownError');
     }
   };
 
-  const makePath = (string) => {
-    const proxy = 'https://allorigins.hexlet.app/get?disableCache=true&url=';
-    return proxy + string;
+  const addProxy = (url) => {
+    const urlWithProxy = new URL('/get', 'https://allorigins.hexlet.app');
+    urlWithProxy.searchParams.set('url', url);
+    urlWithProxy.searchParams.set('disableCache', 'true');
+    return urlWithProxy.toString();
   };
 
   elements.form.addEventListener('submit', (e) => {
@@ -72,11 +75,11 @@ const app = (textLib) => {
       if (err) {
         watcher.form.error = err;
       } else {
-        axios.get(makePath(url))
+        watcher.loading = 'processing';
+        axios.get(addProxy(url))
           .then((response) => {
             const data = parse(response.data.contents);
             watcher.form.error = null;
-            watcher.flows.push(url);
             const newFeed = {
               id: v4(), link: url, title: data.title, description: data.description,
             };
@@ -86,9 +89,11 @@ const app = (textLib) => {
               post = Object.assign(item, post);
               watcher.posts.push(post);
             });
+            watcher.loading = 'ok';
           })
           .catch((error) => {
             setError(error);
+            watcher.loading = 'failure';
           });
       }
     });
@@ -106,7 +111,7 @@ const app = (textLib) => {
   });
 
   const checkNewPosts = () => {
-    const feedsPromises = state.feeds.map((feed) => axios.get(makePath(feed.link))
+    const feedsPromises = state.feeds.map((feed) => axios.get(addProxy(feed.link))
       .then((response) => {
         const oldPostsLinks = state.posts
           .filter((oldPost) => oldPost.feedID === feed.id)
@@ -128,7 +133,7 @@ const app = (textLib) => {
         }
       }));
     Promise.all([...feedsPromises])
-      .then(setTimeout(checkNewPosts, 5000));
+      .finally(setTimeout(checkNewPosts, 5000));
   };
 
   setTimeout(checkNewPosts, 5000);
